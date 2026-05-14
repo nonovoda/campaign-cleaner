@@ -253,14 +253,14 @@
     <section class="fbtool__hero">
       <div class="fbtool__badge">Internal Utility</div>
       <h1 class="fbtool__title">Campaign Cleaner</h1>
-      <div class="fbtool__meta">Compact helper for safe Meta Ads imports: upload export file, clean system IDs/JSON noise, force statuses to PAUSED, download CSV.</div>
+      <div class="fbtool__meta">Утилита для подготовки экспорта Meta Ads к импорту: очистка служебных полей и безопасная подготовка структуры без изменения основной логики кампаний.</div>
     </section>
 
     <section class="fbtool__layout">
       <div class="fbtool__card">
-        <h2 class="fbtool__card-title">Cleaner</h2>
+        <h2 class="fbtool__card-title">Очистка</h2>
         <label class="fbtool__label" for="fileInput">Файл экспорта</label>
-        <input id="fileInput" type="file" accept=".csv,.xlsx,.xls" />
+        <input id="fileInput" type="file" accept=".csv,.xlsx" />
 
         <button id="cleanBtn" class="fbtool__btn fbtool__btn--primary" type="button">
           Очистить и скачать
@@ -268,22 +268,21 @@
       </div>
 
       <aside class="fbtool__card">
-        <h2 class="fbtool__card-title">Import Safety</h2>
+        <h2 class="fbtool__card-title">Памятка импорта</h2>
         <div class="fbtool__pills">
-          <span class="fbtool__pill">Campaign ID</span>
-          <span class="fbtool__pill">Ad Set ID</span>
-          <span class="fbtool__pill">Stats</span>
-          <span class="fbtool__pill">Dates</span>
-          <span class="fbtool__pill">JSON Cleanup</span>
-          <span class="fbtool__pill">Safe Import</span>
-          <span class="fbtool__pill">PAUSED</span>
+          <span class="fbtool__pill">ID Campaign</span>
+          <span class="fbtool__pill">ID Ad Set</span>
+          <span class="fbtool__pill">Статистика</span>
+          <span class="fbtool__pill">Даты</span>
+          <span class="fbtool__pill">Очистка JSON</span>
+          <span class="fbtool__pill">Безопасный импорт</span>
+          <span class="fbtool__pill">Локальная обработка</span>
         </div>
         <ul class="fbtool__info-list">
-          <li>Очищаются campaign/ad set/ad IDs, служебная статистика и чувствительные даты.</li>
-          <li>Safe import mode: все статусные поля принудительно приводятся к <strong>PAUSED</strong>.</li>
-          <li>Local processing: файл обрабатывается только в браузере, без отправки на сервер.</li>
-          <li>JSON cleanup: из JSON-like колонок удаляются импорт-конфликтные ключи.</li>
-          <li>Результат выгружается в CSV для прямого импорта.</li>
+          <li>Удаляются ID кампании/групп/объявлений, служебная статистика и даты запуска/отчётности.</li>
+          <li>Файл обрабатывается только локально в браузере, без отправки на сервер.</li>
+          <li>Из JSON-полей удаляются конфликтные служебные ключи для более чистого импорта.</li>
+          <li>Поддерживаются форматы <strong>CSV</strong> и <strong>XLSX</strong>; файл на выходе сохраняется в формате входного файла.</li>
         </ul>
       </aside>
     </section>
@@ -292,7 +291,10 @@
       <div class="fbtool__log-label">Лог обработки:</div>
       <div id="log" class="fbtool__log"></div>
       <div class="fbtool__note">
-        Основной flow: upload file → clean → download CSV.
+        Памятка по импорту: креативы не переносятся автоматически. После импорта нужно вручную выбрать/загрузить креативы, при использовании языков — обновить креативы для каждого языка, а также самостоятельно выбрать пиксель.
+      </div>
+      <div class="fbtool__note">
+        Важно: публикация импортированной кампании может быть ограничена для РК без истории активного ведения. Обычно требуется период показа по правилам платформы перед публикацией.
       </div>
     </section>
   </main>
@@ -340,7 +342,13 @@
       "created time",
       "last updated time",
       "reporting starts",
-      "reporting ends"
+      "reporting ends",
+      "campaign start date",
+      "start date",
+      "launch date",
+      "date started",
+      "дата запуска",
+      "дата старта"
     ]);
 
     const statusColumns = new Set([
@@ -358,7 +366,13 @@
       /(^|\b)source\s*campaign\s*id(\b|$)/i,
       /(^|\b)source\s*ad\s*set\s*id(\b|$)/i,
       /(^|\b)source\s*adset\s*id(\b|$)/i,
-      /(^|\b)source\s*ad\s*id(\b|$)/i
+      /(^|\b)source\s*ad\s*id(\b|$)/i,
+      /(^|\b)launch\s*date(\b|$)/i,
+      /(^|\b)start\s*date(\b|$)/i,
+      /(^|\b)campaign\s*start\s*date(\b|$)/i,
+      /(^|\b)date\s*started(\b|$)/i,
+      /(^|\b)дата\s*запуска(\b|$)/i,
+      /(^|\b)дата\s*старта(\b|$)/i
     ];
 
     const dropOnlyColumnPatterns = [
@@ -521,7 +535,13 @@
 
     function buildOutputName(inputFileName) {
       const base = inputFileName.replace(/\.[^.]+$/, "");
-      return `${base}_cleaned.csv`;
+      const ext = getFileExt(inputFileName);
+      const finalExt = ext === "xlsx" ? "xlsx" : "csv";
+      return `${base}_cleaned.${finalExt}`;
+    }
+
+    function getFileExt(fileName) {
+      return String(fileName).split(".").pop().toLowerCase();
     }
 
     function downloadCsvFromFirstSheet(workbook, fileName) {
@@ -541,6 +561,10 @@
       URL.revokeObjectURL(url);
     }
 
+    function downloadXlsx(workbook, fileName) {
+      XLSX.writeFile(workbook, fileName, { compression: true });
+    }
+
     function readFileAsArrayBuffer(file) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -558,7 +582,7 @@
       const file = els.fileInput.files?.[0];
 
       if (!file) {
-        log("Сначала загрузите CSV/XLSX файл.", "error");
+        log("Сначала загрузите файл CSV или XLSX.", "error");
         return;
       }
 
@@ -614,7 +638,12 @@
         }
 
         const outputName = buildOutputName(file.name);
-        downloadCsvFromFirstSheet(outputWorkbook, outputName);
+        const inputExt = getFileExt(file.name);
+        if (inputExt === "xlsx") {
+          downloadXlsx(outputWorkbook, outputName);
+        } else {
+          downloadCsvFromFirstSheet(outputWorkbook, outputName);
+        }
 
         log(`Готово. Скачан файл: ${outputName}`, "success");
       } catch (error) {
