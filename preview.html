@@ -45,7 +45,7 @@
     body {
       margin: 0;
       min-height: 100vh;
-      padding: 20px;
+      padding: 28px;
       background:
         radial-gradient(900px 540px at 12% -8%, rgba(77, 255, 143, 0.09), transparent 65%),
         radial-gradient(760px 460px at 90% 12%, rgba(95, 230, 157, 0.08), transparent 70%),
@@ -57,53 +57,62 @@
       justify-content: center;
     }
 
+    .fbtool-shell {
+      width: min(1140px, 100%);
+      border: 1px solid var(--fbtool-border);
+      border-radius: 18px;
+      background: rgba(10, 20, 17, 0.9);
+      box-shadow: var(--fbtool-shadow-modal), inset 0 1px 0 rgba(157, 255, 206, 0.07);
+      padding: 18px;
+    }
+
     .fbtool {
-      width: min(980px, 100%);
+      width: 100%;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 16px;
       color: var(--fbtool-text);
-      font: 13px/1.4 var(--fbtool-font);
+      font: 15px/1.5 var(--fbtool-font);
     }
 
     .fbtool__hero {
-      padding: 4px 2px 2px;
+      padding: 6px 4px 4px;
     }
 
     .fbtool__title {
       margin: 0;
       color: var(--fbtool-accent);
-      font-size: 30px;
+      font-size: 36px;
       line-height: 1.1;
       font-weight: 750;
       letter-spacing: 0.01em;
     }
 
     .fbtool__meta {
-      margin-top: 6px;
+      margin-top: 8px;
       color: var(--fbtool-muted);
-      font-size: 12px;
+      font-size: 14px;
       max-width: 72ch;
     }
 
     .fbtool__layout {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 10px;
+      gap: 14px;
     }
 
     .fbtool__card {
       border: 1px solid var(--fbtool-border-soft);
-      border-radius: 12px;
+      border-radius: 14px;
       background: linear-gradient(180deg, rgba(17, 28, 24, 0.95), rgba(13, 22, 19, 0.95));
-      padding: 12px;
+      padding: 16px;
       box-shadow: var(--fbtool-shadow-modal), inset 0 1px 0 rgba(157, 255, 206, 0.04);
     }
 
     .fbtool__card-title {
-      margin: 0 0 8px;
+      margin: 0 0 10px;
       color: #d7f6e3;
-      font-size: 12px;
+      font-size: 14px;
       text-transform: uppercase;
       letter-spacing: 0.07em;
     }
@@ -113,15 +122,15 @@
       padding-left: 16px;
       color: #bdd5c9;
       display: grid;
-      gap: 8px;
-      font-size: 12px;
+      gap: 10px;
+      font-size: 14px;
     }
 
     .fbtool__label {
       display: block;
-      margin: 8px 0 4px;
+      margin: 12px 0 6px;
       color: var(--fbtool-label);
-      font-size: 12px;
+      font-size: 14px;
       font-weight: 500;
     }
 
@@ -132,7 +141,7 @@
       border: 1px solid var(--fbtool-border-input);
       background: var(--fbtool-control-bg);
       color: var(--fbtool-text);
-      padding: 9px;
+      padding: 11px 12px;
       font: inherit;
       outline: none;
     }
@@ -153,14 +162,15 @@
     }
 
     .fbtool__btn {
-      margin-top: 10px;
+      margin-top: 14px;
       cursor: pointer;
       font-weight: 700;
-      transition: border-color 160ms ease, opacity 160ms ease;
+      transition: border-color 160ms ease, opacity 160ms ease, transform 140ms ease, filter 160ms ease;
     }
 
     .fbtool__btn:hover {
       border-color: var(--fbtool-accent);
+      filter: brightness(1.03);
     }
 
     .fbtool__btn:disabled {
@@ -174,8 +184,22 @@
       border-color: var(--fbtool-accent);
     }
 
+    .fbtool__btn--primary:hover:not(:disabled) {
+      transform: translateY(-1px);
+    }
+
+    .fbtool__btn--primary:active:not(:disabled) {
+      transform: translateY(0);
+      filter: brightness(0.96);
+    }
+
+    input[type="file"]:hover {
+      border-color: #4a6f60;
+    }
+
     .fbtool__log-label {
-      margin-bottom: 6px;
+      margin-top: 16px;
+      margin-bottom: 8px;
       color: var(--fbtool-label);
       font-size: 12px;
       font-weight: 500;
@@ -183,8 +207,8 @@
 
     .fbtool__log {
       width: 100%;
-      min-height: 120px;
-      max-height: 260px;
+      min-height: 150px;
+      max-height: 300px;
       overflow-y: auto;
       background: var(--fbtool-deep-bg);
       border: 1px solid var(--fbtool-border-soft);
@@ -192,7 +216,7 @@
       padding: 8px;
       color: var(--fbtool-text);
       font-family: var(--fbtool-font-mono);
-      font-size: 12px;
+      font-size: 13px;
       line-height: 1.4;
       white-space: pre-wrap;
     }
@@ -205,10 +229,18 @@
     .fbtool__note {
       margin: 6px 0 0;
       color: var(--fbtool-muted);
-      font-size: 11px;
+      font-size: 13px;
     }
 
     @media (max-width: 860px) {
+      body {
+        padding: 18px;
+      }
+
+      .fbtool-shell {
+        padding: 14px;
+      }
+
       .fbtool__layout {
         grid-template-columns: 1fr;
       }
@@ -217,7 +249,8 @@
 </head>
 
 <body>
-  <main class="fbtool">
+  <main class="fbtool-shell">
+  <div class="fbtool">
     <section class="fbtool__hero">
       <h1 class="fbtool__title">Campaign Cleaner</h1>
       <div class="fbtool__meta">Утилита для подготовки экспортированных кампаний к безопасному импорту без ошибок с сохранением ключевых данных и структуры.</div>
@@ -248,6 +281,7 @@
         </ul>
       </aside>
     </section>
+  </div>
   </main>
 
   <script>
