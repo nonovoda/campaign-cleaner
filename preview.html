@@ -724,23 +724,12 @@
         /delivery\s*type/i,
         /attribution/i,
         /frequency\s*control/i,
-        /creative/i,
-        /customization/i,
-        /language/i,
-        /text/i,
-        /title/i,
-        /headline/i,
-        /body/i,
-        /description/i,
-        /url/i,
-        /link/i,
-        /call\s*to\s*action/i,
         /tracking/i,
-        /pixel/i,
-        /object\s*story\s*spec/i,
-        /asset\s*feed\s*spec/i
+        /pixel/i
       ];
       if (/(^|\s)name(\s|$)/i.test(normalized)) return false;
+      if (/(^|\s)ad(\s|$)/i.test(normalized) && !/(ad\s*set|adset)/i.test(normalized)) return false;
+      if (/creative|customization|language|text|title|headline|body|description|url|link|call\s*to\s*action|object\s*story\s*spec|asset\s*feed\s*spec|video/i.test(normalized)) return false;
       return includePatterns.some((pattern) => pattern.test(normalized));
     }
 
