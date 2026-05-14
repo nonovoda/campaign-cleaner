@@ -698,15 +698,65 @@
       return ignorePatterns.some((pattern) => pattern.test(normalized));
     }
 
+    function shouldIncludeSmartField(columnName) {
+      const normalized = normalizeName(columnName);
+      const includePatterns = [
+        /campaign/i,
+        /objective/i,
+        /buying\s*type/i,
+        /special\s*ad/i,
+        /ad\s*set/i,
+        /adset/i,
+        /target/i,
+        /audience/i,
+        /gender/i,
+        /age/i,
+        /location/i,
+        /geo/i,
+        /placement/i,
+        /device/i,
+        /publisher/i,
+        /optimization/i,
+        /billing/i,
+        /bid/i,
+        /budget/i,
+        /schedule/i,
+        /delivery\s*type/i,
+        /attribution/i,
+        /frequency\s*control/i,
+        /creative/i,
+        /customization/i,
+        /language/i,
+        /text/i,
+        /title/i,
+        /headline/i,
+        /body/i,
+        /description/i,
+        /url/i,
+        /link/i,
+        /call\s*to\s*action/i,
+        /tracking/i,
+        /pixel/i,
+        /object\s*story\s*spec/i,
+        /asset\s*feed\s*spec/i
+      ];
+      if (/(^|\s)name(\s|$)/i.test(normalized)) return false;
+      return includePatterns.some((pattern) => pattern.test(normalized));
+    }
+
     function buildSmartFingerprint(row) {
       const payload = {};
+      const fallbackPayload = {};
 
       Object.keys(row).forEach((column) => {
         if (shouldIgnoreSmartField(column)) return;
+        fallbackPayload[column] = row[column];
+        if (!shouldIncludeSmartField(column)) return;
         payload[column] = row[column];
       });
 
-      return stableStringify(payload);
+      const finalPayload = Object.keys(payload).length ? payload : fallbackPayload;
+      return stableStringify(finalPayload);
     }
 
     function applySmartUniqueRows(rows) {
