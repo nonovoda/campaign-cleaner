@@ -658,12 +658,63 @@
       return JSON.stringify(value ?? "");
     }
 
+    function shouldIgnoreSmartField(columnName) {
+      const normalized = normalizeName(columnName);
+      const ignorePatterns = [
+        /(^|\b)campaign\s*id(\b|$)/i,
+        /(^|\b)ad\s*set\s*id(\b|$)/i,
+        /(^|\b)adset\s*id(\b|$)/i,
+        /(^|\b)ad\s*id(\b|$)/i,
+        /(^|\b)source\s*campaign\s*id(\b|$)/i,
+        /(^|\b)source\s*ad\s*set\s*id(\b|$)/i,
+        /(^|\b)source\s*adset\s*id(\b|$)/i,
+        /(^|\b)source\s*ad\s*id(\b|$)/i,
+        /created\s*time/i,
+        /updated\s*time/i,
+        /created\s*at/i,
+        /updated\s*at/i,
+        /reporting\s*starts/i,
+        /reporting\s*ends/i,
+        /delivery/i,
+        /results/i,
+        /reach/i,
+        /impressions/i,
+        /frequency/i,
+        /amount\s*spent/i,
+        /^spend$/i,
+        /cpm/i,
+        /cpc/i,
+        /ctr/i,
+        /clicks/i,
+        /link\s*clicks/i,
+        /purchases/i,
+        /conversions/i,
+        /cost\s*per/i,
+        /budget\s*remaining/i,
+        /quality\s*ranking/i,
+        /engagement\s*rate\s*ranking/i,
+        /conversion\s*rate\s*ranking/i
+      ];
+      return ignorePatterns.some((pattern) => pattern.test(normalized));
+    }
+
+    function buildSmartFingerprint(row) {
+      const payload = {};
+
+      Object.keys(row).forEach((column) => {
+        if (shouldIgnoreSmartField(column)) return;
+        payload[column] = row[column];
+      });
+
+      return stableStringify(payload);
+    }
+
     function applySmartUniqueRows(rows) {
       const uniqueRows = [];
       const seen = new Set();
 
       rows.forEach((row) => {
-        const signature = stableStringify(row);
+        const signature = buildSmartFingerprint(row);
         if (seen.has(signature)) return;
         seen.add(signature);
         uniqueRows.push(row);
