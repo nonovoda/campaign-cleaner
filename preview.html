@@ -701,12 +701,12 @@
     function shouldIncludeSmartField(columnName) {
       const normalized = normalizeName(columnName);
       const includePatterns = [
-        /campaign/i,
+        /campaign\s*status/i,
         /objective/i,
         /buying\s*type/i,
         /special\s*ad/i,
-        /ad\s*set/i,
-        /adset/i,
+        /ad\s*set\s*status/i,
+        /adset\s*status/i,
         /target/i,
         /audience/i,
         /gender/i,
@@ -728,6 +728,7 @@
         /pixel/i
       ];
       if (/(^|\s)name(\s|$)/i.test(normalized)) return false;
+      if (/time\s*start|time\s*stop|start\s*time|end\s*time|created|updated|learning|recommendation/i.test(normalized)) return false;
       if (/(^|\s)ad(\s|$)/i.test(normalized) && !/(ad\s*set|adset)/i.test(normalized)) return false;
       if (/creative|customization|language|text|title|headline|body|description|url|link|call\s*to\s*action|object\s*story\s*spec|asset\s*feed\s*spec|video/i.test(normalized)) return false;
       return includePatterns.some((pattern) => pattern.test(normalized));
