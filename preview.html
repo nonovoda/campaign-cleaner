@@ -45,56 +45,178 @@
     body {
       margin: 0;
       min-height: 100vh;
-      display: grid;
-      place-items: center;
-      padding: 16px;
-      background: var(--fbtool-deep-bg);
+      padding: 28px;
+      background:
+        radial-gradient(900px 540px at 12% -8%, rgba(77, 255, 143, 0.09), transparent 65%),
+        radial-gradient(760px 460px at 90% 12%, rgba(95, 230, 157, 0.08), transparent 70%),
+        radial-gradient(620px 380px at 52% 110%, rgba(57, 141, 102, 0.15), transparent 78%),
+        linear-gradient(180deg, #0b1210 0%, #0a110f 100%);
       color: var(--fbtool-text);
       font-family: var(--fbtool-font);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .fbtool-shell {
+      width: min(1140px, 100%);
+      border: 1px solid var(--fbtool-border);
+      border-radius: 18px;
+      background: rgba(10, 20, 17, 0.9);
+      box-shadow: var(--fbtool-shadow-modal), inset 0 1px 0 rgba(157, 255, 206, 0.07);
+      padding: 22px;
     }
 
     .fbtool {
-      width: min(420px, calc(100vw - 24px));
-      max-height: calc(100vh - 40px);
-      overflow: auto;
+      width: 100%;
       display: flex;
       flex-direction: column;
-      background: var(--fbtool-panel-bg);
+      gap: 16px;
       color: var(--fbtool-text);
-      border: 1px solid var(--fbtool-border);
-      border-radius: var(--fbtool-radius-modal);
-      box-shadow: var(--fbtool-shadow-modal);
-      font: 13px/1.4 var(--fbtool-font);
-      padding: 14px;
+      font: 15px/1.5 var(--fbtool-font);
     }
 
-    .fbtool__header {
-      position: relative;
-      padding-right: 34px;
-      margin-bottom: 10px;
+    .fbtool__hero {
+      padding: 6px 4px 4px;
     }
 
     .fbtool__title {
       margin: 0;
       color: var(--fbtool-accent);
-      font-size: 32px;
-      line-height: 1.05;
-      font-weight: 800;
+      font-size: 36px;
+      line-height: 1.1;
+      font-weight: 750;
       letter-spacing: 0.01em;
     }
 
     .fbtool__meta {
-      margin-top: 4px;
+      margin-top: 8px;
       color: var(--fbtool-muted);
-      font-size: 11px;
+      font-size: 14px;
+      max-width: 72ch;
+    }
+
+    .fbtool__layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .fbtool__card {
+      border: 1px solid var(--fbtool-border-soft);
+      border-radius: 14px;
+      background: linear-gradient(180deg, rgba(17, 28, 24, 0.95), rgba(13, 22, 19, 0.95));
+      padding: 16px;
+      box-shadow: var(--fbtool-shadow-modal), inset 0 1px 0 rgba(157, 255, 206, 0.04);
+    }
+
+    .fbtool__card-title {
+      margin: 0 0 10px;
+      color: #d7f6e3;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+    }
+
+    .fbtool__info-list {
+      margin: 0;
+      padding-left: 16px;
+      color: #bdd5c9;
+      display: grid;
+      gap: 10px;
+      font-size: 14px;
     }
 
     .fbtool__label {
       display: block;
-      margin: 8px 0 4px;
+      margin: 12px 0 6px;
       color: var(--fbtool-label);
-      font-size: 12px;
+      font-size: 14px;
       font-weight: 500;
+    }
+
+    .fbtool__mode-head {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .fbtool__tooltip-trigger {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--fbtool-muted);
+      cursor: help;
+      position: relative;
+    }
+
+    .fbtool__tooltip-trigger:hover {
+      color: var(--fbtool-accent);
+    }
+
+    .fbtool__info-icon {
+      display: block;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none;
+    }
+
+    .fbtool__tooltip {
+      display: none;
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%);
+      width: 270px;
+      background: #0b1210;
+      border: 1px solid var(--fbtool-border-soft);
+      border-radius: 8px;
+      padding: 8px;
+      color: #c6dfd2;
+      font-size: 12px;
+      line-height: 1.35;
+      z-index: 3;
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.35);
+    }
+
+    .fbtool__tooltip-trigger:hover .fbtool__tooltip {
+      display: block;
+    }
+
+    .fbtool__mode-switch {
+      margin-top: 6px;
+      display: flex;
+      gap: 6px;
+    }
+
+    .fbtool__mode-btn {
+      flex: 1;
+      height: 36px;
+      padding: 0;
+      border-radius: var(--fbtool-radius-control);
+      border: 1px solid var(--fbtool-border-input);
+      background: var(--fbtool-control-bg);
+      color: var(--fbtool-muted);
+      font-weight: 700;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: border-color 160ms ease, background-color 160ms ease, color 160ms ease;
+    }
+
+    .fbtool__mode-btn:hover {
+      border-color: var(--fbtool-accent);
+      background: #173127;
+    }
+
+    .fbtool__mode-btn.is-active {
+      background: linear-gradient(180deg, #58ff9c 0%, #49e489 100%);
+      color: var(--fbtool-accent-text);
+      border-color: var(--fbtool-accent);
     }
 
     input,
@@ -104,7 +226,7 @@
       border: 1px solid var(--fbtool-border-input);
       background: var(--fbtool-control-bg);
       color: var(--fbtool-text);
-      padding: 9px;
+      padding: 11px 12px;
       font: inherit;
       outline: none;
     }
@@ -125,14 +247,15 @@
     }
 
     .fbtool__btn {
-      margin-top: 10px;
+      margin-top: 14px;
       cursor: pointer;
       font-weight: 700;
-      transition: border-color 160ms ease, opacity 160ms ease;
+      transition: border-color 160ms ease, opacity 160ms ease, transform 140ms ease, filter 160ms ease;
     }
 
     .fbtool__btn:hover {
       border-color: var(--fbtool-accent);
+      filter: brightness(1.03);
     }
 
     .fbtool__btn:disabled {
@@ -141,14 +264,28 @@
     }
 
     .fbtool__btn--primary {
-      background: var(--fbtool-accent);
+      background: linear-gradient(180deg, #58ff9c 0%, #49e489 100%);
       color: var(--fbtool-accent-text);
       border-color: var(--fbtool-accent);
     }
 
+    .fbtool__btn--primary:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 18px -8px rgba(77, 255, 143, 0.55);
+    }
+
+    .fbtool__btn--primary:active:not(:disabled) {
+      transform: translateY(0);
+      filter: brightness(0.96);
+    }
+
+    input[type="file"]:hover {
+      border-color: #4a6f60;
+    }
+
     .fbtool__log-label {
-      margin-top: 10px;
-      margin-bottom: 4px;
+      margin-top: 16px;
+      margin-bottom: 8px;
       color: var(--fbtool-label);
       font-size: 12px;
       font-weight: 500;
@@ -156,8 +293,8 @@
 
     .fbtool__log {
       width: 100%;
-      min-height: 120px;
-      max-height: 260px;
+      min-height: 150px;
+      max-height: 300px;
       overflow-y: auto;
       background: var(--fbtool-deep-bg);
       border: 1px solid var(--fbtool-border-soft);
@@ -165,7 +302,7 @@
       padding: 8px;
       color: var(--fbtool-text);
       font-family: var(--fbtool-font-mono);
-      font-size: 12px;
+      font-size: 13px;
       line-height: 1.4;
       white-space: pre-wrap;
     }
@@ -176,37 +313,90 @@
     .error { color: var(--fbtool-error); }
 
     .fbtool__note {
-      margin-top: 8px;
+      margin: 6px 0 0;
       color: var(--fbtool-muted);
-      font-size: 11px;
+      font-size: 13px;
+    }
+
+    @media (max-width: 860px) {
+      body {
+        padding: 18px;
+      }
+
+      .fbtool-shell {
+        padding: 14px;
+      }
+
+      .fbtool__layout {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
 
 <body>
-  <main class="fbtool">
-    <div class="fbtool__header">
+  <main class="fbtool-shell">
+  <div class="fbtool">
+    <section class="fbtool__hero">
       <h1 class="fbtool__title">Campaign Cleaner</h1>
-      <div class="fbtool__meta">Meta Ads Import Helper</div>
-    </div>
+      <div class="fbtool__meta">Утилита для подготовки экспортированных кампаний к безопасному импорту без ошибок с сохранением ключевых данных и структуры.</div>
+    </section>
 
-    <label class="fbtool__label" for="fileInput">Файл экспорта</label>
-    <input id="fileInput" type="file" accept=".csv,.xlsx,.xls" />
+    <section class="fbtool__layout">
+      <div class="fbtool__card">
+        <h2 class="fbtool__card-title">Очистка</h2>
+        <div class="fbtool__note">Поддерживаются форматы <strong>CSV</strong> и <strong>XLSX</strong>; файл на выходе сохраняется в формате входного файла.</div>
+        <label class="fbtool__label" for="fileInput">Файл экспорта</label>
+        <input id="fileInput" type="file" accept=".csv,.xlsx" />
 
-    <button id="cleanBtn" class="fbtool__btn fbtool__btn--primary" type="button">
-      Очистить и скачать
-    </button>
+        <div class="fbtool__label">
+          <span class="fbtool__mode-head">Выбор режима
+            <span class="fbtool__tooltip-trigger">
+              <svg class="fbtool__info-icon" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+                <circle cx="12" cy="12" r="9" />
+                <path d="M12 10v7" />
+                <path d="M12 7h.01" />
+              </svg>
+              <span class="fbtool__tooltip">
+                <strong>Compact:</strong> Принудительно сводит структуру к 1-1-1. Подходит для кампаний с одинаковыми ad sets и объявлениями.<br><br>
+                <strong>Smart:</strong> Удаляет только дубли и сохраняет уникальные ad sets / ads. Подходит для кампаний с разными настройками.<br><br>
+                <strong>Full:</strong> Сохраняет полностью оригинальную структуру кампании.
+              </span>
+            </span>
+          </span>
+        </div>
+        <div class="fbtool__mode-switch">
+          <button id="modeCompact" class="fbtool__mode-btn is-active" type="button">Compact</button>
+          <button id="modeSmart" class="fbtool__mode-btn" type="button">Smart</button>
+          <button id="modeFull" class="fbtool__mode-btn" type="button">Full</button>
+        </div>
 
-    <div class="fbtool__log-label">Лог обработки:</div>
-    <div id="log" class="fbtool__log"></div>
+        <button id="cleanBtn" class="fbtool__btn fbtool__btn--primary" type="button">
+          Очистить и скачать
+        </button>
 
-    <div class="fbtool__note">
-      Файл не отправляется на сервер. Обработка идёт локально в браузере. Статусы автоматически ставятся в PAUSED.
-    </div>
+        <div class="fbtool__log-label">Лог обработки:</div>
+        <div id="log" class="fbtool__log"></div>
+      </div>
+
+      <aside class="fbtool__card">
+        <h2 class="fbtool__card-title">Памятка импорта</h2>
+        <ul class="fbtool__info-list">
+          <li>Скрипт поддерживает мультиобработку кампаний: можно загружать один файл сразу с несколькими кампаниями и разными настройками.</li>
+          <li>Креативы не переносятся автоматически: после импорта нужно вручную выбрать/загрузить креативы; для языковых версий — обновить креативы в каждом языке.</li>
+          <li>Если на РК отсутствует пиксель из экспортированной кампании, его нужно выбрать вручную.</li>
+          <li>По правилам FB публикация импортированной кампании возможна только после периода активности РК в течение нескольких недель.</li>
+          <li>После импорта кампании в FB может появиться список ошибок — достаточно закрыть это окно; обычно такие ошибки не влияют на успешность импорта.</li>
+          <li>Обработка выполняется локально в браузере, без отправки файла на сервер.</li>
+        </ul>
+        <div class="fbtool__note">*Все режимы протестированы, однако возможна некоторая нестабильность в работе.</div>
+      </aside>
+    </section>
+  </div>
   </main>
 
   <script>
-    const FORCE_STATUS = "PAUSED";
+    const FORCE_STATUS = "ACTIVE";
 
     const jsonLikeColumnPatterns = [
       /targeting/i,
@@ -298,8 +488,12 @@
     const els = {
       fileInput: document.getElementById("fileInput"),
       cleanBtn: document.getElementById("cleanBtn"),
-      log: document.getElementById("log")
+      log: document.getElementById("log"),
+      modeCompact: document.getElementById("modeCompact"),
+      modeSmart: document.getElementById("modeSmart"),
+      modeFull: document.getElementById("modeFull")
     };
+    let cleanupMode = "compact";
 
     function log(message, type = "info") {
       const row = document.createElement("div");
@@ -427,9 +621,263 @@
       return { rows: cleanedRows, droppedColumns };
     }
 
+    function findColumnByAliases(columns, aliases) {
+      return columns.find((column) => aliases.includes(normalizeName(column)));
+    }
+
+    function splitRowsByCampaign(rows) {
+      if (!rows.length) return [];
+
+      const columns = Object.keys(rows[0]);
+      const campaignIdColumn = findColumnByAliases(columns, ["campaign id"]);
+      const campaignNameColumn = findColumnByAliases(columns, ["campaign name"]);
+
+      const groups = [];
+      const groupsById = new Map();
+      const nameBlockCounters = new Map();
+      let prevNameKey = null;
+
+      rows.forEach((row, index) => {
+        const idValue = campaignIdColumn ? String(row[campaignIdColumn] ?? "").trim() : "";
+        const nameValue = campaignNameColumn ? String(row[campaignNameColumn] ?? "").trim() : "";
+        let groupKey;
+
+        if (idValue) {
+          groupKey = `id::${idValue}`;
+          if (!groupsById.has(groupKey)) {
+            groupsById.set(groupKey, { key: groupKey, rows: [] });
+            groups.push(groupsById.get(groupKey));
+          }
+          groupsById.get(groupKey).rows.push(row);
+          prevNameKey = null;
+          return;
+        }
+
+        if (nameValue) {
+          const nameBase = `name::${nameValue.toLowerCase()}`;
+          const isNewBlock = prevNameKey !== nameBase;
+          if (isNewBlock) {
+            const nextBlock = (nameBlockCounters.get(nameBase) || 0) + 1;
+            nameBlockCounters.set(nameBase, nextBlock);
+          }
+          const blockNumber = nameBlockCounters.get(nameBase);
+          groupKey = `${nameBase}::block${blockNumber}`;
+
+          let group = groups.find((item) => item.key === groupKey);
+          if (!group) {
+            group = { key: groupKey, rows: [] };
+            groups.push(group);
+          }
+          group.rows.push(row);
+          prevNameKey = nameBase;
+          return;
+        }
+
+        groupKey = `unknown::row${index + 1}`;
+        groups.push({ key: groupKey, rows: [row] });
+        prevNameKey = null;
+      });
+
+      return groups;
+    }
+
+    function rowHasAnyData(row) {
+      return Object.values(row).some((value) => String(value ?? "").trim() !== "");
+    }
+
+    function applyCompactSingleRepresentative(rows) {
+      if (!rows.length) return rows;
+
+      const columns = Object.keys(rows[0]);
+      const adLevelColumns = columns.filter((column) => {
+        const normalized = normalizeName(column);
+        return /(^|\s)ad(\s|$)/i.test(normalized)
+          || /creative/i.test(normalized)
+          || /asset\s*feed\s*spec/i.test(normalized)
+          || /object\s*story\s*spec/i.test(normalized)
+          || /video/i.test(normalized);
+      });
+
+      let representative = rows.find((row) => {
+        return adLevelColumns.some((column) => String(row[column] ?? "").trim() !== "");
+      });
+
+      if (!representative) {
+        representative = rows.find((row) => rowHasAnyData(row));
+      }
+
+      return representative ? [representative] : [rows[0]];
+    }
+
+    function stableStringify(value) {
+      if (Array.isArray(value)) {
+        return `[${value.map((item) => stableStringify(item)).join(",")}]`;
+      }
+      if (value && typeof value === "object") {
+        const keys = Object.keys(value).sort();
+        return `{${keys.map((key) => `${JSON.stringify(key)}:${stableStringify(value[key])}`).join(",")}}`;
+      }
+      return JSON.stringify(value ?? "");
+    }
+
+    function shouldIgnoreSmartField(columnName) {
+      const normalized = normalizeName(columnName);
+      const ignorePatterns = [
+        /(^|\b)campaign\s*id(\b|$)/i,
+        /(^|\b)ad\s*set\s*id(\b|$)/i,
+        /(^|\b)adset\s*id(\b|$)/i,
+        /(^|\b)ad\s*id(\b|$)/i,
+        /(^|\b)source\s*campaign\s*id(\b|$)/i,
+        /(^|\b)source\s*ad\s*set\s*id(\b|$)/i,
+        /(^|\b)source\s*adset\s*id(\b|$)/i,
+        /(^|\b)source\s*ad\s*id(\b|$)/i,
+        /created\s*time/i,
+        /updated\s*time/i,
+        /created\s*at/i,
+        /updated\s*at/i,
+        /reporting\s*starts/i,
+        /reporting\s*ends/i,
+        /delivery/i,
+        /results/i,
+        /reach/i,
+        /impressions/i,
+        /frequency/i,
+        /amount\s*spent/i,
+        /^spend$/i,
+        /cpm/i,
+        /cpc/i,
+        /ctr/i,
+        /clicks/i,
+        /link\s*clicks/i,
+        /purchases/i,
+        /conversions/i,
+        /cost\s*per/i,
+        /budget\s*remaining/i,
+        /quality\s*ranking/i,
+        /engagement\s*rate\s*ranking/i,
+        /conversion\s*rate\s*ranking/i
+      ];
+      return ignorePatterns.some((pattern) => pattern.test(normalized));
+    }
+
+    function shouldIncludeSmartField(columnName) {
+      const normalized = normalizeName(columnName);
+      const includePatterns = [
+        /campaign\s*status/i,
+        /objective/i,
+        /buying\s*type/i,
+        /special\s*ad/i,
+        /ad\s*set\s*status/i,
+        /adset\s*status/i,
+        /target/i,
+        /audience/i,
+        /gender/i,
+        /age/i,
+        /location/i,
+        /geo/i,
+        /placement/i,
+        /device/i,
+        /publisher/i,
+        /optimization/i,
+        /billing/i,
+        /bid/i,
+        /budget/i,
+        /schedule/i,
+        /delivery\s*type/i,
+        /attribution/i,
+        /frequency\s*control/i,
+        /tracking/i,
+        /pixel/i
+      ];
+      if (/(^|\s)name(\s|$)/i.test(normalized)) return false;
+      if (/time\s*start|time\s*stop|start\s*time|end\s*time|created|updated|learning|recommendation/i.test(normalized)) return false;
+      if (/(^|\s)ad(\s|$)/i.test(normalized) && !/(ad\s*set|adset)/i.test(normalized)) return false;
+      if (/creative|customization|language|text|title|headline|body|description|url|link|call\s*to\s*action|object\s*story\s*spec|asset\s*feed\s*spec|video/i.test(normalized)) return false;
+      return includePatterns.some((pattern) => pattern.test(normalized));
+    }
+
+    function buildSmartFingerprint(row) {
+      const payload = {};
+      const fallbackPayload = {};
+
+      Object.keys(row).forEach((column) => {
+        if (shouldIgnoreSmartField(column)) return;
+        fallbackPayload[column] = row[column];
+        if (!shouldIncludeSmartField(column)) return;
+        payload[column] = row[column];
+      });
+
+      const finalPayload = Object.keys(payload).length ? payload : fallbackPayload;
+      return stableStringify(finalPayload);
+    }
+
+    function applySmartUniqueRows(rows) {
+      const uniqueRows = [];
+      const seen = new Set();
+
+      rows.forEach((row) => {
+        const signature = buildSmartFingerprint(row);
+        if (seen.has(signature)) return;
+        seen.add(signature);
+        uniqueRows.push(row);
+      });
+
+      return {
+        rows: uniqueRows,
+        removedDuplicates: rows.length - uniqueRows.length
+      };
+    }
+
+    function isSameColumn(columnName, expectedNames) {
+      const normalized = normalizeName(columnName);
+      return expectedNames.includes(normalized);
+    }
+
+    function applyNameSuffixes(rows) {
+      if (!rows.length) return rows;
+
+      const columns = Object.keys(rows[0]);
+      const adSetNameCol = columns.find((c) => isSameColumn(c, ["ad set name", "adset name"]));
+      const adNameCol = columns.find((c) => isSameColumn(c, ["ad name"]));
+      const adSetCounters = new Map();
+      const adCounters = new Map();
+
+      return rows.map((row) => {
+        const next = { ...row };
+
+        if (adSetNameCol) {
+          const base = String(next[adSetNameCol] ?? "").trim();
+          if (base) {
+            const key = base.toLowerCase();
+            const count = (adSetCounters.get(key) || 0) + 1;
+            adSetCounters.set(key, count);
+            if (count > 1) next[adSetNameCol] = `${base} #${count}`;
+          }
+        }
+
+        if (adNameCol) {
+          const base = String(next[adNameCol] ?? "").trim();
+          if (base) {
+            const key = base.toLowerCase();
+            const count = (adCounters.get(key) || 0) + 1;
+            adCounters.set(key, count);
+            if (count > 1) next[adNameCol] = `${base} #${count}`;
+          }
+        }
+
+        return next;
+      });
+    }
+
     function buildOutputName(inputFileName) {
       const base = inputFileName.replace(/\.[^.]+$/, "");
-      return `${base}_cleaned.csv`;
+      const ext = getFileExt(inputFileName);
+      const finalExt = ext === "xlsx" ? "xlsx" : "csv";
+      return `${base}_cleaned_${cleanupMode}.${finalExt}`;
+    }
+
+    function getFileExt(fileName) {
+      return String(fileName).split(".").pop().toLowerCase();
     }
 
     function downloadCsvFromFirstSheet(workbook, fileName) {
@@ -449,6 +897,10 @@
       URL.revokeObjectURL(url);
     }
 
+    function downloadXlsx(workbook, fileName) {
+      XLSX.writeFile(workbook, fileName, { compression: true });
+    }
+
     function readFileAsArrayBuffer(file) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -466,7 +918,7 @@
       const file = els.fileInput.files?.[0];
 
       if (!file) {
-        log("Сначала загрузите CSV/XLSX файл.", "error");
+        log("Сначала загрузите файл CSV или XLSX.", "error");
         return;
       }
 
@@ -509,20 +961,52 @@
             continue;
           }
 
-          const { rows: cleanedRows, droppedColumns } = cleanSheetRows(rows);
-          const cleanedSheet = XLSX.utils.json_to_sheet(cleanedRows);
+          const campaignGroups = splitRowsByCampaign(rows);
+          log(`Найдено кампаний: ${campaignGroups.length}`, "info");
+          log("Обработка выполняется отдельно по каждой кампании.", "info");
+
+          const droppedColumnSet = new Set();
+          const finalRows = [];
+
+          campaignGroups.forEach((group, idx) => {
+            const { rows: cleanedRows, droppedColumns } = cleanSheetRows(group.rows);
+            droppedColumns.forEach((column) => droppedColumnSet.add(column));
+
+            let groupFinalRows = cleanedRows;
+
+            if (cleanupMode === "compact") {
+              groupFinalRows = applyCompactSingleRepresentative(cleanedRows);
+            } else if (cleanupMode === "smart") {
+              const smartResult = applySmartUniqueRows(cleanedRows);
+              groupFinalRows = applyNameSuffixes(smartResult.rows);
+              log(`Кампания ${idx + 1} (Smart): исходных строк ${cleanedRows.length}`, "info");
+              log(`Кампания ${idx + 1} (Smart): удалено дублей ${smartResult.removedDuplicates}`, "success");
+              log(`Кампания ${idx + 1} (Smart): сохранено строк ${groupFinalRows.length}`, "info");
+            } else if (cleanupMode === "full") {
+              groupFinalRows = applyNameSuffixes(cleanedRows);
+            }
+
+            finalRows.push(...groupFinalRows);
+          });
+
+          const cleanedSheet = XLSX.utils.json_to_sheet(finalRows);
 
           XLSX.utils.book_append_sheet(outputWorkbook, cleanedSheet, sheetName.slice(0, 31));
 
-          if (droppedColumns.length) {
-            log(`Удалено колонок: ${droppedColumns.length}`, "success");
+          if (droppedColumnSet.size) {
+            log(`Удалено колонок: ${droppedColumnSet.size}`, "success");
           } else {
             log("Опасные колонки не найдены.", "info");
           }
         }
 
         const outputName = buildOutputName(file.name);
-        downloadCsvFromFirstSheet(outputWorkbook, outputName);
+        const inputExt = getFileExt(file.name);
+        if (inputExt === "xlsx") {
+          downloadXlsx(outputWorkbook, outputName);
+        } else {
+          downloadCsvFromFirstSheet(outputWorkbook, outputName);
+        }
 
         log(`Готово. Скачан файл: ${outputName}`, "success");
       } catch (error) {
@@ -535,6 +1019,24 @@
     }
 
     els.cleanBtn.addEventListener("click", processFile);
+    els.modeCompact.addEventListener("click", () => {
+      cleanupMode = "compact";
+      els.modeCompact.classList.add("is-active");
+      els.modeSmart.classList.remove("is-active");
+      els.modeFull.classList.remove("is-active");
+    });
+    els.modeSmart.addEventListener("click", () => {
+      cleanupMode = "smart";
+      els.modeSmart.classList.add("is-active");
+      els.modeCompact.classList.remove("is-active");
+      els.modeFull.classList.remove("is-active");
+    });
+    els.modeFull.addEventListener("click", () => {
+      cleanupMode = "full";
+      els.modeFull.classList.add("is-active");
+      els.modeSmart.classList.remove("is-active");
+      els.modeCompact.classList.remove("is-active");
+    });
 
     log("Готов к работе.", "success");
   </script>
