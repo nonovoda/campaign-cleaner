@@ -358,14 +358,16 @@
                 <path d="M12 7h.01" />
               </svg>
               <span class="fbtool__tooltip">
-                <strong>Compact:</strong> Подходит для кампаний с одинаковыми адсетами и объявлениями. Сводит структуру до 1-1-1.<br><br>
-                <strong>Full:</strong> Подходит для кампаний с разными адсетами и объявлениями. Сохраняет оригинальную структуру.
+                <strong>Compact:</strong> Принудительно сводит структуру к 1-1-1. Подходит для кампаний с одинаковыми ad sets и объявлениями.<br><br>
+                <strong>Smart:</strong> Удаляет только дубли и сохраняет уникальные ad sets / ads. Подходит для кампаний с разными настройками.<br><br>
+                <strong>Full:</strong> Сохраняет оригинальную структуру кампании без схлопывания.
               </span>
             </span>
           </span>
         </div>
         <div class="fbtool__mode-switch">
           <button id="modeCompact" class="fbtool__mode-btn is-active" type="button">Compact</button>
+          <button id="modeSmart" class="fbtool__mode-btn" type="button">Smart</button>
           <button id="modeFull" class="fbtool__mode-btn" type="button">Full</button>
         </div>
 
@@ -486,6 +488,7 @@
       cleanBtn: document.getElementById("cleanBtn"),
       log: document.getElementById("log"),
       modeCompact: document.getElementById("modeCompact"),
+      modeSmart: document.getElementById("modeSmart"),
       modeFull: document.getElementById("modeFull")
     };
     let cleanupMode = "compact";
@@ -616,48 +619,6 @@
       return { rows: cleanedRows, droppedColumns };
     }
 
-    function isSameColumn(columnName, expectedNames) {
-      const normalized = normalizeName(columnName);
-      return expectedNames.includes(normalized);
-    }
-
-    function applyFullModeNameSuffixes(rows) {
-      if (!rows.length) return rows;
-
-      const columns = Object.keys(rows[0]);
-      const adSetNameCol = columns.find((c) => isSameColumn(c, ["ad set name", "adset name"]));
-      const adNameCol = columns.find((c) => isSameColumn(c, ["ad name"]));
-
-      const adSetCounters = new Map();
-      const adCounters = new Map();
-
-      return rows.map((row) => {
-        const next = { ...row };
-
-        if (adSetNameCol) {
-          const base = String(next[adSetNameCol] ?? "").trim();
-          if (base) {
-            const key = base.toLowerCase();
-            const count = (adSetCounters.get(key) || 0) + 1;
-            adSetCounters.set(key, count);
-            if (count > 1) next[adSetNameCol] = `${base} #${count}`;
-          }
-        }
-
-        if (adNameCol) {
-          const base = String(next[adNameCol] ?? "").trim();
-          if (base) {
-            const key = base.toLowerCase();
-            const count = (adCounters.get(key) || 0) + 1;
-            adCounters.set(key, count);
-            if (count > 1) next[adNameCol] = `${base} #${count}`;
-          }
-        }
-
-        return next;
-      });
-    }
-
     function rowHasAnyData(row) {
       return Object.values(row).some((value) => String(value ?? "").trim() !== "");
     }
@@ -684,6 +645,34 @@
       }
 
       return representative ? [representative] : [rows[0]];
+    }
+
+    function stableStringify(value) {
+      if (Array.isArray(value)) {
+        return `[${value.map((item) => stableStringify(item)).join(",")}]`;
+      }
+      if (value && typeof value === "object") {
+        const keys = Object.keys(value).sort();
+        return `{${keys.map((key) => `${JSON.stringify(key)}:${stableStringify(value[key])}`).join(",")}}`;
+      }
+      return JSON.stringify(value ?? "");
+    }
+
+    function applySmartUniqueRows(rows) {
+      const uniqueRows = [];
+      const seen = new Set();
+
+      rows.forEach((row) => {
+        const signature = stableStringify(row);
+        if (seen.has(signature)) return;
+        seen.add(signature);
+        uniqueRows.push(row);
+      });
+
+      return {
+        rows: uniqueRows,
+        removedDuplicates: rows.length - uniqueRows.length
+      };
     }
 
     function buildOutputName(inputFileName) {
@@ -779,9 +768,18 @@
           }
 
           const { rows: cleanedRows, droppedColumns } = cleanSheetRows(rows);
-          const finalRows = cleanupMode === "full"
-            ? applyFullModeNameSuffixes(cleanedRows)
-            : applyCompactSingleRepresentative(cleanedRows);
+          let finalRows = cleanedRows;
+
+          if (cleanupMode === "compact") {
+            finalRows = applyCompactSingleRepresentative(cleanedRows);
+          } else if (cleanupMode === "smart") {
+            const smartResult = applySmartUniqueRows(cleanedRows);
+            finalRows = smartResult.rows;
+            log(`Smart режим: исходных строк ${cleanedRows.length}`, "info");
+            log(`Smart режим: удалено дублей ${smartResult.removedDuplicates}`, "success");
+            log(`Smart режим: сохранено уникальных строк ${finalRows.length}`, "info");
+          }
+
           const cleanedSheet = XLSX.utils.json_to_sheet(finalRows);
 
           XLSX.utils.book_append_sheet(outputWorkbook, cleanedSheet, sheetName.slice(0, 31));
@@ -815,11 +813,19 @@
     els.modeCompact.addEventListener("click", () => {
       cleanupMode = "compact";
       els.modeCompact.classList.add("is-active");
+      els.modeSmart.classList.remove("is-active");
+      els.modeFull.classList.remove("is-active");
+    });
+    els.modeSmart.addEventListener("click", () => {
+      cleanupMode = "smart";
+      els.modeSmart.classList.add("is-active");
+      els.modeCompact.classList.remove("is-active");
       els.modeFull.classList.remove("is-active");
     });
     els.modeFull.addEventListener("click", () => {
       cleanupMode = "full";
       els.modeFull.classList.add("is-active");
+      els.modeSmart.classList.remove("is-active");
       els.modeCompact.classList.remove("is-active");
     });
 
