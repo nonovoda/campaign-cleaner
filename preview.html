@@ -619,6 +619,66 @@
       return { rows: cleanedRows, droppedColumns };
     }
 
+    function findColumnByAliases(columns, aliases) {
+      return columns.find((column) => aliases.includes(normalizeName(column)));
+    }
+
+    function splitRowsByCampaign(rows) {
+      if (!rows.length) return [];
+
+      const columns = Object.keys(rows[0]);
+      const campaignIdColumn = findColumnByAliases(columns, ["campaign id"]);
+      const campaignNameColumn = findColumnByAliases(columns, ["campaign name"]);
+
+      const groups = [];
+      const groupsById = new Map();
+      const nameBlockCounters = new Map();
+      let prevNameKey = null;
+
+      rows.forEach((row, index) => {
+        const idValue = campaignIdColumn ? String(row[campaignIdColumn] ?? "").trim() : "";
+        const nameValue = campaignNameColumn ? String(row[campaignNameColumn] ?? "").trim() : "";
+        let groupKey;
+
+        if (idValue) {
+          groupKey = `id::${idValue}`;
+          if (!groupsById.has(groupKey)) {
+            groupsById.set(groupKey, { key: groupKey, rows: [] });
+            groups.push(groupsById.get(groupKey));
+          }
+          groupsById.get(groupKey).rows.push(row);
+          prevNameKey = null;
+          return;
+        }
+
+        if (nameValue) {
+          const nameBase = `name::${nameValue.toLowerCase()}`;
+          const isNewBlock = prevNameKey !== nameBase;
+          if (isNewBlock) {
+            const nextBlock = (nameBlockCounters.get(nameBase) || 0) + 1;
+            nameBlockCounters.set(nameBase, nextBlock);
+          }
+          const blockNumber = nameBlockCounters.get(nameBase);
+          groupKey = `${nameBase}::block${blockNumber}`;
+
+          let group = groups.find((item) => item.key === groupKey);
+          if (!group) {
+            group = { key: groupKey, rows: [] };
+            groups.push(group);
+          }
+          group.rows.push(row);
+          prevNameKey = nameBase;
+          return;
+        }
+
+        groupKey = `unknown::row${index + 1}`;
+        groups.push({ key: groupKey, rows: [row] });
+        prevNameKey = null;
+      });
+
+      return groups;
+    }
+
     function rowHasAnyData(row) {
       return Object.values(row).some((value) => String(value ?? "").trim() !== "");
     }
@@ -899,27 +959,40 @@
             continue;
           }
 
-          const { rows: cleanedRows, droppedColumns } = cleanSheetRows(rows);
-          let finalRows = cleanedRows;
+          const campaignGroups = splitRowsByCampaign(rows);
+          log(`Найдено кампаний: ${campaignGroups.length}`, "info");
+          log("Обработка выполняется отдельно по каждой кампании.", "info");
 
-          if (cleanupMode === "compact") {
-            finalRows = applyCompactSingleRepresentative(cleanedRows);
-          } else if (cleanupMode === "smart") {
-            const smartResult = applySmartUniqueRows(cleanedRows);
-            finalRows = applyNameSuffixes(smartResult.rows);
-            log(`Smart режим: исходных строк ${cleanedRows.length}`, "info");
-            log(`Smart режим: удалено дублей ${smartResult.removedDuplicates}`, "success");
-            log(`Smart режим: сохранено уникальных строк ${finalRows.length}`, "info");
-          } else if (cleanupMode === "full") {
-            finalRows = applyNameSuffixes(cleanedRows);
-          }
+          const droppedColumnSet = new Set();
+          const finalRows = [];
+
+          campaignGroups.forEach((group, idx) => {
+            const { rows: cleanedRows, droppedColumns } = cleanSheetRows(group.rows);
+            droppedColumns.forEach((column) => droppedColumnSet.add(column));
+
+            let groupFinalRows = cleanedRows;
+
+            if (cleanupMode === "compact") {
+              groupFinalRows = applyCompactSingleRepresentative(cleanedRows);
+            } else if (cleanupMode === "smart") {
+              const smartResult = applySmartUniqueRows(cleanedRows);
+              groupFinalRows = applyNameSuffixes(smartResult.rows);
+              log(`Кампания ${idx + 1} (Smart): исходных строк ${cleanedRows.length}`, "info");
+              log(`Кампания ${idx + 1} (Smart): удалено дублей ${smartResult.removedDuplicates}`, "success");
+              log(`Кампания ${idx + 1} (Smart): сохранено строк ${groupFinalRows.length}`, "info");
+            } else if (cleanupMode === "full") {
+              groupFinalRows = applyNameSuffixes(cleanedRows);
+            }
+
+            finalRows.push(...groupFinalRows);
+          });
 
           const cleanedSheet = XLSX.utils.json_to_sheet(finalRows);
 
           XLSX.utils.book_append_sheet(outputWorkbook, cleanedSheet, sheetName.slice(0, 31));
 
-          if (droppedColumns.length) {
-            log(`Удалено колонок: ${droppedColumns.length}`, "success");
+          if (droppedColumnSet.size) {
+            log(`Удалено колонок: ${droppedColumnSet.size}`, "success");
           } else {
             log("Опасные колонки не найдены.", "info");
           }
