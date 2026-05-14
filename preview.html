@@ -383,9 +383,9 @@
         <h2 class="fbtool__card-title">Памятка импорта</h2>
         <ul class="fbtool__info-list">
           <li>Креативы не переносятся автоматически: после импорта нужно вручную выбрать/загрузить креативы; для языковых версий — обновить креативы в каждом языке.</li>
-          <li>После импорта пиксель выбирается вручную.</li>
+          <li>Если на РК отсутствует пиксель из экспортированной кампании, его нужно выбрать вручную.</li>
           <li>По правилам FB публикация импортированной кампании возможна только после периода активности РК в течение нескольких недель.</li>
-          <li>После импорта кампании в FB может появиться список ошибок, который нужно закрыть; обычно это не влияет на успешность импорта.</li>
+          <li>После импорта кампании в FB может появиться список ошибок — достаточно закрыть это окно; обычно такие ошибки не влияют на успешность импорта.</li>
           <li>Обработка выполняется локально в браузере, без отправки файла на сервер.</li>
         </ul>
       </aside>
@@ -675,11 +675,52 @@
       };
     }
 
+    function isSameColumn(columnName, expectedNames) {
+      const normalized = normalizeName(columnName);
+      return expectedNames.includes(normalized);
+    }
+
+    function applyNameSuffixes(rows) {
+      if (!rows.length) return rows;
+
+      const columns = Object.keys(rows[0]);
+      const adSetNameCol = columns.find((c) => isSameColumn(c, ["ad set name", "adset name"]));
+      const adNameCol = columns.find((c) => isSameColumn(c, ["ad name"]));
+      const adSetCounters = new Map();
+      const adCounters = new Map();
+
+      return rows.map((row) => {
+        const next = { ...row };
+
+        if (adSetNameCol) {
+          const base = String(next[adSetNameCol] ?? "").trim();
+          if (base) {
+            const key = base.toLowerCase();
+            const count = (adSetCounters.get(key) || 0) + 1;
+            adSetCounters.set(key, count);
+            if (count > 1) next[adSetNameCol] = `${base} #${count}`;
+          }
+        }
+
+        if (adNameCol) {
+          const base = String(next[adNameCol] ?? "").trim();
+          if (base) {
+            const key = base.toLowerCase();
+            const count = (adCounters.get(key) || 0) + 1;
+            adCounters.set(key, count);
+            if (count > 1) next[adNameCol] = `${base} #${count}`;
+          }
+        }
+
+        return next;
+      });
+    }
+
     function buildOutputName(inputFileName) {
       const base = inputFileName.replace(/\.[^.]+$/, "");
       const ext = getFileExt(inputFileName);
       const finalExt = ext === "xlsx" ? "xlsx" : "csv";
-      return `${base}_cleaned.${finalExt}`;
+      return `${base}_cleaned_${cleanupMode}.${finalExt}`;
     }
 
     function getFileExt(fileName) {
@@ -774,10 +815,12 @@
             finalRows = applyCompactSingleRepresentative(cleanedRows);
           } else if (cleanupMode === "smart") {
             const smartResult = applySmartUniqueRows(cleanedRows);
-            finalRows = smartResult.rows;
+            finalRows = applyNameSuffixes(smartResult.rows);
             log(`Smart режим: исходных строк ${cleanedRows.length}`, "info");
             log(`Smart режим: удалено дублей ${smartResult.removedDuplicates}`, "success");
             log(`Smart режим: сохранено уникальных строк ${finalRows.length}`, "info");
+          } else if (cleanupMode === "full") {
+            finalRows = applyNameSuffixes(cleanedRows);
           }
 
           const cleanedSheet = XLSX.utils.json_to_sheet(finalRows);
