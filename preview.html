@@ -279,6 +279,7 @@
           <li>Креативы не переносятся автоматически: после импорта нужно вручную выбрать/загрузить креативы; для языковых версий — обновить креативы в каждом языке.</li>
           <li>После импорта пиксель выбирается вручную.</li>
           <li>По правилам FB публикация импортированной кампании возможна только после периода активности РК в течение нескольких недель.</li>
+          <li>После импорта FB может показать список ошибок по несоответствиям — в большинстве случаев это ожидаемо для чернового переноса.</li>
           <li>Обработка выполняется локально в браузере, без отправки файла на сервер.</li>
         </ul>
       </aside>
@@ -329,13 +330,7 @@
       "created time",
       "last updated time",
       "reporting starts",
-      "reporting ends",
-      "campaign start date",
-      "start date",
-      "launch date",
-      "date started",
-      "дата запуска",
-      "дата старта"
+      "reporting ends"
     ]);
 
     const statusColumns = new Set([
@@ -353,13 +348,7 @@
       /(^|\b)source\s*campaign\s*id(\b|$)/i,
       /(^|\b)source\s*ad\s*set\s*id(\b|$)/i,
       /(^|\b)source\s*adset\s*id(\b|$)/i,
-      /(^|\b)source\s*ad\s*id(\b|$)/i,
-      /(^|\b)launch\s*date(\b|$)/i,
-      /(^|\b)start\s*date(\b|$)/i,
-      /(^|\b)campaign\s*start\s*date(\b|$)/i,
-      /(^|\b)date\s*started(\b|$)/i,
-      /(^|\b)дата\s*запуска(\b|$)/i,
-      /(^|\b)дата\s*старта(\b|$)/i
+      /(^|\b)source\s*ad\s*id(\b|$)/i
     ];
 
     const dropOnlyColumnPatterns = [
@@ -385,12 +374,7 @@
       /budget\s*remaining/i,
       /quality\s*ranking/i,
       /engagement\s*rate\s*ranking/i,
-      /conversion\s*rate\s*ranking/i,
-      /ad\s*set\s*time\s*start/i,
-      /additional\s*body/i,
-      /additional\s*title/i,
-      /additional\s*video/i,
-      /additional\s*language/i
+      /conversion\s*rate\s*ranking/i
     ];
 
     const els = {
