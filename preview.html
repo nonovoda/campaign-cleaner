@@ -45,48 +45,114 @@
     body {
       margin: 0;
       min-height: 100vh;
-      display: grid;
-      place-items: center;
-      padding: 16px;
-      background: var(--fbtool-deep-bg);
+      padding: 20px;
+      background:
+        radial-gradient(900px 540px at 12% -8%, rgba(77, 255, 143, 0.09), transparent 65%),
+        radial-gradient(760px 460px at 90% 12%, rgba(95, 230, 157, 0.08), transparent 70%),
+        radial-gradient(620px 380px at 52% 110%, rgba(57, 141, 102, 0.15), transparent 78%),
+        linear-gradient(180deg, #0b1210 0%, #0a110f 100%);
       color: var(--fbtool-text);
       font-family: var(--fbtool-font);
+      display: flex;
+      justify-content: center;
     }
 
     .fbtool {
-      width: min(420px, calc(100vw - 24px));
-      max-height: calc(100vh - 40px);
-      overflow: auto;
+      width: min(1040px, 100%);
       display: flex;
       flex-direction: column;
+      gap: 12px;
       background: var(--fbtool-panel-bg);
       color: var(--fbtool-text);
       border: 1px solid var(--fbtool-border);
       border-radius: var(--fbtool-radius-modal);
-      box-shadow: var(--fbtool-shadow-modal);
+      box-shadow: var(--fbtool-shadow-modal), inset 0 1px 0 rgba(157, 255, 206, 0.06);
       font: 13px/1.4 var(--fbtool-font);
       padding: 14px;
     }
 
-    .fbtool__header {
-      position: relative;
-      padding-right: 34px;
-      margin-bottom: 10px;
+    .fbtool__hero {
+      border: 1px solid var(--fbtool-border-soft);
+      background: linear-gradient(180deg, rgba(20, 35, 30, 0.9), rgba(13, 24, 21, 0.9));
+      border-radius: 12px;
+      padding: 12px;
+    }
+
+    .fbtool__badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid #2c5646;
+      background: rgba(77, 255, 143, 0.1);
+      color: #b8ffd1;
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 700;
+      margin-bottom: 8px;
     }
 
     .fbtool__title {
       margin: 0;
       color: var(--fbtool-accent);
-      font-size: 32px;
-      line-height: 1.05;
-      font-weight: 800;
+      font-size: 24px;
+      line-height: 1.1;
+      font-weight: 750;
       letter-spacing: 0.01em;
     }
 
     .fbtool__meta {
-      margin-top: 4px;
+      margin-top: 6px;
       color: var(--fbtool-muted);
+      font-size: 12px;
+      max-width: 72ch;
+    }
+
+    .fbtool__layout {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 12px;
+    }
+
+    .fbtool__card {
+      border: 1px solid var(--fbtool-border-soft);
+      border-radius: 12px;
+      background: linear-gradient(180deg, rgba(17, 28, 24, 0.95), rgba(13, 22, 19, 0.95));
+      padding: 12px;
+    }
+
+    .fbtool__card-title {
+      margin: 0 0 8px;
+      color: #d7f6e3;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+    }
+
+    .fbtool__pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .fbtool__pill {
+      border: 1px solid #2a4d40;
+      border-radius: 999px;
+      padding: 3px 8px;
+      background: #10201b;
+      color: #b8d9c9;
       font-size: 11px;
+    }
+
+    .fbtool__info-list {
+      margin: 0;
+      padding-left: 16px;
+      color: #bdd5c9;
+      display: grid;
+      gap: 5px;
+      font-size: 12px;
     }
 
     .fbtool__label {
@@ -147,8 +213,7 @@
     }
 
     .fbtool__log-label {
-      margin-top: 10px;
-      margin-bottom: 4px;
+      margin-bottom: 6px;
       color: var(--fbtool-label);
       font-size: 12px;
       font-weight: 500;
@@ -185,24 +250,51 @@
 
 <body>
   <main class="fbtool">
-    <div class="fbtool__header">
+    <section class="fbtool__hero">
+      <div class="fbtool__badge">Internal Utility</div>
       <h1 class="fbtool__title">Campaign Cleaner</h1>
-      <div class="fbtool__meta">Meta Ads Import Helper</div>
-    </div>
+      <div class="fbtool__meta">Compact helper for safe Meta Ads imports: upload export file, clean system IDs/JSON noise, force statuses to PAUSED, download CSV.</div>
+    </section>
 
-    <label class="fbtool__label" for="fileInput">Файл экспорта</label>
-    <input id="fileInput" type="file" accept=".csv,.xlsx,.xls" />
+    <section class="fbtool__layout">
+      <div class="fbtool__card">
+        <h2 class="fbtool__card-title">Cleaner</h2>
+        <label class="fbtool__label" for="fileInput">Файл экспорта</label>
+        <input id="fileInput" type="file" accept=".csv,.xlsx,.xls" />
 
-    <button id="cleanBtn" class="fbtool__btn fbtool__btn--primary" type="button">
-      Очистить и скачать
-    </button>
+        <button id="cleanBtn" class="fbtool__btn fbtool__btn--primary" type="button">
+          Очистить и скачать
+        </button>
+      </div>
 
-    <div class="fbtool__log-label">Лог обработки:</div>
-    <div id="log" class="fbtool__log"></div>
+      <aside class="fbtool__card">
+        <h2 class="fbtool__card-title">Import Safety</h2>
+        <div class="fbtool__pills">
+          <span class="fbtool__pill">Campaign ID</span>
+          <span class="fbtool__pill">Ad Set ID</span>
+          <span class="fbtool__pill">Stats</span>
+          <span class="fbtool__pill">Dates</span>
+          <span class="fbtool__pill">JSON Cleanup</span>
+          <span class="fbtool__pill">Safe Import</span>
+          <span class="fbtool__pill">PAUSED</span>
+        </div>
+        <ul class="fbtool__info-list">
+          <li>Очищаются campaign/ad set/ad IDs, служебная статистика и чувствительные даты.</li>
+          <li>Safe import mode: все статусные поля принудительно приводятся к <strong>PAUSED</strong>.</li>
+          <li>Local processing: файл обрабатывается только в браузере, без отправки на сервер.</li>
+          <li>JSON cleanup: из JSON-like колонок удаляются импорт-конфликтные ключи.</li>
+          <li>Результат выгружается в CSV для прямого импорта.</li>
+        </ul>
+      </aside>
+    </section>
 
-    <div class="fbtool__note">
-      Файл не отправляется на сервер. Обработка идёт локально в браузере. Статусы автоматически ставятся в PAUSED.
-    </div>
+    <section class="fbtool__card">
+      <div class="fbtool__log-label">Лог обработки:</div>
+      <div id="log" class="fbtool__log"></div>
+      <div class="fbtool__note">
+        Основной flow: upload file → clean → download CSV.
+      </div>
+    </section>
   </main>
 
   <script>
