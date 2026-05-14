@@ -141,17 +141,26 @@
       gap: 6px;
     }
 
-    .fbtool__info-icon {
-      width: 15px;
-      height: 15px;
-      border-radius: 50%;
-      border: 1px solid var(--fbtool-border-input);
+    .fbtool__tooltip-trigger {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
       color: var(--fbtool-muted);
-      font-size: 10px;
-      line-height: 13px;
-      text-align: center;
       cursor: help;
       position: relative;
+    }
+
+    .fbtool__tooltip-trigger:hover {
+      color: var(--fbtool-accent);
+    }
+
+    .fbtool__info-icon {
+      display: block;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none;
     }
 
     .fbtool__tooltip {
@@ -172,7 +181,7 @@
       box-shadow: 0 12px 24px rgba(0, 0, 0, 0.35);
     }
 
-    .fbtool__info-icon:hover .fbtool__tooltip {
+    .fbtool__tooltip-trigger:hover .fbtool__tooltip {
       display: block;
     }
 
@@ -185,11 +194,16 @@
     .fbtool__mode-btn {
       flex: 1;
       height: 36px;
+      padding: 0;
       border-radius: var(--fbtool-radius-control);
       border: 1px solid var(--fbtool-border-input);
       background: var(--fbtool-control-bg);
       color: var(--fbtool-muted);
       font-weight: 700;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       cursor: pointer;
       transition: border-color 160ms ease, background-color 160ms ease, color 160ms ease;
     }
@@ -337,7 +351,12 @@
 
         <div class="fbtool__label">
           <span class="fbtool__mode-head">Выбор режима
-            <span class="fbtool__info-icon">ⓘ
+            <span class="fbtool__tooltip-trigger">
+              <svg class="fbtool__info-icon" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+                <circle cx="12" cy="12" r="9" />
+                <path d="M12 10v7" />
+                <path d="M12 7h.01" />
+              </svg>
               <span class="fbtool__tooltip">
                 <strong>Compact:</strong> Подходит для кампаний с одинаковыми адсетами и объявлениями. Сводит структуру до 1-1-1.<br><br>
                 <strong>Full:</strong> Подходит для кампаний с разными адсетами и объявлениями. Сохраняет оригинальную структуру.
@@ -639,6 +658,34 @@
       });
     }
 
+    function rowHasAnyData(row) {
+      return Object.values(row).some((value) => String(value ?? "").trim() !== "");
+    }
+
+    function applyCompactSingleRepresentative(rows) {
+      if (!rows.length) return rows;
+
+      const columns = Object.keys(rows[0]);
+      const adLevelColumns = columns.filter((column) => {
+        const normalized = normalizeName(column);
+        return /(^|\s)ad(\s|$)/i.test(normalized)
+          || /creative/i.test(normalized)
+          || /asset\s*feed\s*spec/i.test(normalized)
+          || /object\s*story\s*spec/i.test(normalized)
+          || /video/i.test(normalized);
+      });
+
+      let representative = rows.find((row) => {
+        return adLevelColumns.some((column) => String(row[column] ?? "").trim() !== "");
+      });
+
+      if (!representative) {
+        representative = rows.find((row) => rowHasAnyData(row));
+      }
+
+      return representative ? [representative] : [rows[0]];
+    }
+
     function buildOutputName(inputFileName) {
       const base = inputFileName.replace(/\.[^.]+$/, "");
       const ext = getFileExt(inputFileName);
@@ -732,7 +779,9 @@
           }
 
           const { rows: cleanedRows, droppedColumns } = cleanSheetRows(rows);
-          const finalRows = cleanupMode === "full" ? applyFullModeNameSuffixes(cleanedRows) : cleanedRows;
+          const finalRows = cleanupMode === "full"
+            ? applyFullModeNameSuffixes(cleanedRows)
+            : applyCompactSingleRepresentative(cleanedRows);
           const cleanedSheet = XLSX.utils.json_to_sheet(finalRows);
 
           XLSX.utils.book_append_sheet(outputWorkbook, cleanedSheet, sheetName.slice(0, 31));
