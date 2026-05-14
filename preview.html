@@ -58,45 +58,22 @@
     }
 
     .fbtool {
-      width: min(1040px, 100%);
+      width: min(980px, 100%);
       display: flex;
       flex-direction: column;
-      gap: 12px;
-      background: var(--fbtool-panel-bg);
+      gap: 10px;
       color: var(--fbtool-text);
-      border: 1px solid var(--fbtool-border);
-      border-radius: var(--fbtool-radius-modal);
-      box-shadow: var(--fbtool-shadow-modal), inset 0 1px 0 rgba(157, 255, 206, 0.06);
       font: 13px/1.4 var(--fbtool-font);
-      padding: 14px;
     }
 
     .fbtool__hero {
-      border: 1px solid var(--fbtool-border-soft);
-      background: linear-gradient(180deg, rgba(20, 35, 30, 0.9), rgba(13, 24, 21, 0.9));
-      border-radius: 12px;
-      padding: 12px;
-    }
-
-    .fbtool__badge {
-      display: inline-flex;
-      align-items: center;
-      padding: 3px 8px;
-      border-radius: 999px;
-      border: 1px solid #2c5646;
-      background: rgba(77, 255, 143, 0.1);
-      color: #b8ffd1;
-      font-size: 10px;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      font-weight: 700;
-      margin-bottom: 8px;
+      padding: 4px 2px 2px;
     }
 
     .fbtool__title {
       margin: 0;
       color: var(--fbtool-accent);
-      font-size: 24px;
+      font-size: 30px;
       line-height: 1.1;
       font-weight: 750;
       letter-spacing: 0.01em;
@@ -111,8 +88,8 @@
 
     .fbtool__layout {
       display: grid;
-      grid-template-columns: 1.1fr 0.9fr;
-      gap: 12px;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
     }
 
     .fbtool__card {
@@ -120,6 +97,7 @@
       border-radius: 12px;
       background: linear-gradient(180deg, rgba(17, 28, 24, 0.95), rgba(13, 22, 19, 0.95));
       padding: 12px;
+      box-shadow: var(--fbtool-shadow-modal), inset 0 1px 0 rgba(157, 255, 206, 0.04);
     }
 
     .fbtool__card-title {
@@ -130,28 +108,12 @@
       letter-spacing: 0.07em;
     }
 
-    .fbtool__pills {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-bottom: 10px;
-    }
-
-    .fbtool__pill {
-      border: 1px solid #2a4d40;
-      border-radius: 999px;
-      padding: 3px 8px;
-      background: #10201b;
-      color: #b8d9c9;
-      font-size: 11px;
-    }
-
     .fbtool__info-list {
       margin: 0;
       padding-left: 16px;
       color: #bdd5c9;
       display: grid;
-      gap: 5px;
+      gap: 8px;
       font-size: 12px;
     }
 
@@ -241,9 +203,15 @@
     .error { color: var(--fbtool-error); }
 
     .fbtool__note {
-      margin-top: 8px;
+      margin: 6px 0 0;
       color: var(--fbtool-muted);
       font-size: 11px;
+    }
+
+    @media (max-width: 860px) {
+      .fbtool__layout {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
@@ -251,51 +219,34 @@
 <body>
   <main class="fbtool">
     <section class="fbtool__hero">
-      <div class="fbtool__badge">Internal Utility</div>
       <h1 class="fbtool__title">Campaign Cleaner</h1>
-      <div class="fbtool__meta">Утилита для подготовки экспорта Meta Ads к импорту: очистка служебных полей и безопасная подготовка структуры без изменения основной логики кампаний.</div>
+      <div class="fbtool__meta">Утилита для подготовки экспортированных кампаний к безопасному импорту без ошибок с сохранением ключевых данных и структуры.</div>
     </section>
 
     <section class="fbtool__layout">
       <div class="fbtool__card">
         <h2 class="fbtool__card-title">Очистка</h2>
+        <div class="fbtool__note">Поддерживаются форматы <strong>CSV</strong> и <strong>XLSX</strong>; файл на выходе сохраняется в формате входного файла.</div>
         <label class="fbtool__label" for="fileInput">Файл экспорта</label>
         <input id="fileInput" type="file" accept=".csv,.xlsx" />
 
         <button id="cleanBtn" class="fbtool__btn fbtool__btn--primary" type="button">
           Очистить и скачать
         </button>
+
+        <div class="fbtool__log-label">Лог обработки:</div>
+        <div id="log" class="fbtool__log"></div>
       </div>
 
       <aside class="fbtool__card">
         <h2 class="fbtool__card-title">Памятка импорта</h2>
-        <div class="fbtool__pills">
-          <span class="fbtool__pill">ID Campaign</span>
-          <span class="fbtool__pill">ID Ad Set</span>
-          <span class="fbtool__pill">Статистика</span>
-          <span class="fbtool__pill">Даты</span>
-          <span class="fbtool__pill">Очистка JSON</span>
-          <span class="fbtool__pill">Безопасный импорт</span>
-          <span class="fbtool__pill">Локальная обработка</span>
-        </div>
         <ul class="fbtool__info-list">
-          <li>Удаляются ID кампании/групп/объявлений, служебная статистика и даты запуска/отчётности.</li>
-          <li>Файл обрабатывается только локально в браузере, без отправки на сервер.</li>
-          <li>Из JSON-полей удаляются конфликтные служебные ключи для более чистого импорта.</li>
-          <li>Поддерживаются форматы <strong>CSV</strong> и <strong>XLSX</strong>; файл на выходе сохраняется в формате входного файла.</li>
+          <li>Креативы не переносятся автоматически: после импорта нужно вручную выбрать/загрузить креативы; для языковых версий — обновить креативы в каждом языке.</li>
+          <li>После импорта пиксель выбирается вручную.</li>
+          <li>По правилам FB публикация импортированной кампании возможна только после периода активности РК в течение нескольких недель.</li>
+          <li>Обработка выполняется локально в браузере, без отправки файла на сервер.</li>
         </ul>
       </aside>
-    </section>
-
-    <section class="fbtool__card">
-      <div class="fbtool__log-label">Лог обработки:</div>
-      <div id="log" class="fbtool__log"></div>
-      <div class="fbtool__note">
-        Памятка по импорту: креативы не переносятся автоматически. После импорта нужно вручную выбрать/загрузить креативы, при использовании языков — обновить креативы для каждого языка, а также самостоятельно выбрать пиксель.
-      </div>
-      <div class="fbtool__note">
-        Важно: публикация импортированной кампании может быть ограничена для РК без истории активного ведения. Обычно требуется период показа по правилам платформы перед публикацией.
-      </div>
     </section>
   </main>
 
