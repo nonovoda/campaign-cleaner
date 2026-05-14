@@ -135,6 +135,76 @@
       font-weight: 500;
     }
 
+    .fbtool__mode-head {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .fbtool__info-icon {
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      border: 1px solid var(--fbtool-border-input);
+      color: var(--fbtool-muted);
+      font-size: 10px;
+      line-height: 13px;
+      text-align: center;
+      cursor: help;
+      position: relative;
+    }
+
+    .fbtool__tooltip {
+      display: none;
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%);
+      width: 270px;
+      background: #0b1210;
+      border: 1px solid var(--fbtool-border-soft);
+      border-radius: 8px;
+      padding: 8px;
+      color: #c6dfd2;
+      font-size: 12px;
+      line-height: 1.35;
+      z-index: 3;
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.35);
+    }
+
+    .fbtool__info-icon:hover .fbtool__tooltip {
+      display: block;
+    }
+
+    .fbtool__mode-switch {
+      margin-top: 6px;
+      display: flex;
+      gap: 6px;
+    }
+
+    .fbtool__mode-btn {
+      flex: 1;
+      height: 36px;
+      border-radius: var(--fbtool-radius-control);
+      border: 1px solid var(--fbtool-border-input);
+      background: var(--fbtool-control-bg);
+      color: var(--fbtool-muted);
+      font-weight: 700;
+      cursor: pointer;
+      transition: border-color 160ms ease, background-color 160ms ease, color 160ms ease;
+    }
+
+    .fbtool__mode-btn:hover {
+      border-color: var(--fbtool-accent);
+      background: #173127;
+    }
+
+    .fbtool__mode-btn.is-active {
+      background: linear-gradient(180deg, #58ff9c 0%, #49e489 100%);
+      color: var(--fbtool-accent-text);
+      border-color: var(--fbtool-accent);
+    }
+
     input,
     button {
       width: 100%;
@@ -265,6 +335,21 @@
         <label class="fbtool__label" for="fileInput">Файл экспорта</label>
         <input id="fileInput" type="file" accept=".csv,.xlsx" />
 
+        <div class="fbtool__label">
+          <span class="fbtool__mode-head">Выбор режима
+            <span class="fbtool__info-icon">ⓘ
+              <span class="fbtool__tooltip">
+                <strong>Compact:</strong> Подходит для кампаний с одинаковыми адсетами и объявлениями. Сводит структуру до 1-1-1.<br><br>
+                <strong>Full:</strong> Подходит для кампаний с разными адсетами и объявлениями. Сохраняет оригинальную структуру.
+              </span>
+            </span>
+          </span>
+        </div>
+        <div class="fbtool__mode-switch">
+          <button id="modeCompact" class="fbtool__mode-btn is-active" type="button">Compact</button>
+          <button id="modeFull" class="fbtool__mode-btn" type="button">Full</button>
+        </div>
+
         <button id="cleanBtn" class="fbtool__btn fbtool__btn--primary" type="button">
           Очистить и скачать
         </button>
@@ -380,8 +465,11 @@
     const els = {
       fileInput: document.getElementById("fileInput"),
       cleanBtn: document.getElementById("cleanBtn"),
-      log: document.getElementById("log")
+      log: document.getElementById("log"),
+      modeCompact: document.getElementById("modeCompact"),
+      modeFull: document.getElementById("modeFull")
     };
+    let cleanupMode = "compact";
 
     function log(message, type = "info") {
       const row = document.createElement("div");
@@ -509,6 +597,48 @@
       return { rows: cleanedRows, droppedColumns };
     }
 
+    function isSameColumn(columnName, expectedNames) {
+      const normalized = normalizeName(columnName);
+      return expectedNames.includes(normalized);
+    }
+
+    function applyFullModeNameSuffixes(rows) {
+      if (!rows.length) return rows;
+
+      const columns = Object.keys(rows[0]);
+      const adSetNameCol = columns.find((c) => isSameColumn(c, ["ad set name", "adset name"]));
+      const adNameCol = columns.find((c) => isSameColumn(c, ["ad name"]));
+
+      const adSetCounters = new Map();
+      const adCounters = new Map();
+
+      return rows.map((row) => {
+        const next = { ...row };
+
+        if (adSetNameCol) {
+          const base = String(next[adSetNameCol] ?? "").trim();
+          if (base) {
+            const key = base.toLowerCase();
+            const count = (adSetCounters.get(key) || 0) + 1;
+            adSetCounters.set(key, count);
+            if (count > 1) next[adSetNameCol] = `${base} #${count}`;
+          }
+        }
+
+        if (adNameCol) {
+          const base = String(next[adNameCol] ?? "").trim();
+          if (base) {
+            const key = base.toLowerCase();
+            const count = (adCounters.get(key) || 0) + 1;
+            adCounters.set(key, count);
+            if (count > 1) next[adNameCol] = `${base} #${count}`;
+          }
+        }
+
+        return next;
+      });
+    }
+
     function buildOutputName(inputFileName) {
       const base = inputFileName.replace(/\.[^.]+$/, "");
       const ext = getFileExt(inputFileName);
@@ -602,7 +732,8 @@
           }
 
           const { rows: cleanedRows, droppedColumns } = cleanSheetRows(rows);
-          const cleanedSheet = XLSX.utils.json_to_sheet(cleanedRows);
+          const finalRows = cleanupMode === "full" ? applyFullModeNameSuffixes(cleanedRows) : cleanedRows;
+          const cleanedSheet = XLSX.utils.json_to_sheet(finalRows);
 
           XLSX.utils.book_append_sheet(outputWorkbook, cleanedSheet, sheetName.slice(0, 31));
 
@@ -632,6 +763,16 @@
     }
 
     els.cleanBtn.addEventListener("click", processFile);
+    els.modeCompact.addEventListener("click", () => {
+      cleanupMode = "compact";
+      els.modeCompact.classList.add("is-active");
+      els.modeFull.classList.remove("is-active");
+    });
+    els.modeFull.addEventListener("click", () => {
+      cleanupMode = "full";
+      els.modeFull.classList.add("is-active");
+      els.modeCompact.classList.remove("is-active");
+    });
 
     log("Готов к работе.", "success");
   </script>
