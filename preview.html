@@ -55,10 +55,12 @@
       font-family: var(--fbtool-font);
       display: flex;
       justify-content: center;
+      align-items: center;
     }
 
     .fbtool-shell {
       width: min(1140px, 100%);
+      min-height: calc(100vh - 56px);
       border: 1px solid var(--fbtool-border);
       border-radius: 18px;
       background: rgba(10, 20, 17, 0.9);
@@ -179,13 +181,14 @@
     }
 
     .fbtool__btn--primary {
-      background: var(--fbtool-accent);
+      background: linear-gradient(180deg, #58ff9c 0%, #49e489 100%);
       color: var(--fbtool-accent-text);
       border-color: var(--fbtool-accent);
     }
 
     .fbtool__btn--primary:hover:not(:disabled) {
       transform: translateY(-1px);
+      box-shadow: 0 8px 18px -8px rgba(77, 255, 143, 0.55);
     }
 
     .fbtool__btn--primary:active:not(:disabled) {
